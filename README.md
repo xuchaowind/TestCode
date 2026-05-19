@@ -1,130 +1,264 @@
-# 网络测试脚本
+# 网络测试脚本 (Network Test Script)
 
-这是一个全面的网络诊断工具，用于测试网络连通性和性能。
+完整的Python网络测试工具，用于检测网络连通性、DNS解析、HTTP响应、端口连通性和网络延迟。
 
 ## 功能特性
 
-✓ **Ping 测试** - 检查网络连通性  
-✓ **DNS 解析测试** - 验证DNS功能  
-✓ **HTTP 请求测试** - 检查Web服务器连接  
-✓ **端口测试** - 检查特定端口是否��放  
-✓ **网络延迟测试** - 测试网络延迟  
-✓ **结果保存** - 将测试结果导出为JSON格式  
+- 🔍 **DNS解析测试** - 验证域名是否能正确解析到IP地址
+- 📡 **Ping测试** - 检查主机的网络连通性
+- 🌐 **HTTP测试** - 发送HTTP请求并测量响应时间
+- 🔌 **端口连通性测试** - 检查特定端口是否开放
+- ⏱️ **网络延迟测试** - 测试到目标主机的平均延迟
+- 💾 **结果保存** - 将所有测试结果保存为JSON格式
 
 ## 系统要求
 
 - Python 3.6+
-- Windows / Linux / macOS
-- 网络访问权限
+- 支持系统：Linux、macOS、Windows
 
 ## 安装
 
+### 1. 克隆或下载项目
 ```bash
-# 克隆或下载本仓库
 git clone https://github.com/xuchaowind/TestCode.git
 cd TestCode
+```
 
-# 安装依赖
+### 2. 安装依赖
+```bash
 pip install -r requirements.txt
 ```
 
 ## 使用方法
 
-### 运行完整测试
-
+### 基础使用
 ```bash
 python network_test.py
 ```
 
-### 自定义测试
+脚本会自动执行所有测试，并将结果保存到 `network_test_results.json`
 
-编辑 `network_test.py` 中的 `main()` 函数，修改测试项目：
+### 在Python代码中使用
 
 ```python
-# 修改DNS测试的域名
-tester.dns_test("example.com")
+from network_test import NetworkTester
 
-# 修改Ping测试的主机
-tester.ping_test("1.1.1.1")
+# 创建测试实例
+tester = NetworkTester(timeout=5)
 
-# 修改HTTP测试的URL
-tester.http_test("https://example.com")
+# 运行单个测试
+tester.test_dns_resolution('example.com')
+tester.test_ping('example.com')
+tester.test_http_request('https://example.com')
+tester.test_port_connectivity('example.com', 443)
+tester.test_network_latency('example.com')
 
-# 修改端口测试
-tester.port_test("example.com", 80)
+# 保存结果
+tester.save_results('my_results.json')
+tester.print_summary()
 ```
 
 ## 输出示例
 
+### 命令行输出
 ```
 ============================================================
-网络测试脚本 v1.0
+Starting Network Tests
 ============================================================
 
-[DNS TEST] 测试域名: github.com
-✓ DNS 解析成功
-  github.com -> 140.82.113.4
+[DNS Resolution Tests]
+✓ DNS Test: github.com -> 140.82.121.4
+✓ DNS Test: google.com -> 172.217.174.46
+✓ DNS Test: cloudflare.com -> 104.16.132.229
 
-[PING TEST] 测试主机: 8.8.8.8
-✓ 8.8.8.8 可达
-PING 8.8.8.8 (8.8.8.8): 56 data bytes
-...
+[Ping Connectivity Tests]
+✓ Ping Test: github.com is reachable
+✓ Ping Test: google.com is reachable
 
-[HTTP TEST] 测试URL: https://github.com
-✓ HTTP 请求成功
-  状态码: 200
-  响应时间: 0.45秒
-  Content-Type: text/html; charset=utf-8
+[HTTP Request Tests]
+✓ HTTP Test: https://github.com - Status 200 (234.56ms)
+✓ HTTP Test: https://www.google.com - Status 200 (125.34ms)
+✓ HTTP Test: https://www.cloudflare.com - Status 200 (98.76ms)
 
-[PORT TEST] 测试端口: github.com:443
-✓ 端口 443 开放
+[Port Connectivity Tests]
+✓ Port Test: github.com:22 is open
+✓ Port Test: github.com:443 is open
+✓ Port Test: 8.8.8.8:53 is open
 
-[LATENCY TEST] 测试网络延迟到: 8.8.8.8
-✓ 延迟测试成功
-...
+[Network Latency Tests]
+✓ Latency Test: github.com - Avg 45.23ms
+✓ Latency Test: google.com - Avg 32.15ms
 
 ============================================================
-网络测试完成
+Network Tests Completed
 ============================================================
 ```
 
-## 结果文件
-
-测试完成后，结果将保存到 `network_test_results.json` 文件：
+### JSON结果文件 (network_test_results.json)
 
 ```json
 {
   "timestamp": "2026-05-19T15:30:00.123456",
+  "system": "Linux",
   "tests": {
     "dns": {
-      "status": "success",
-      "domain": "github.com",
-      "ip": "140.82.113.4"
+      "github.com": {
+        "status": "success",
+        "hostname": "github.com",
+        "ip_address": "140.82.121.4"
+      }
     },
     "ping": {
-      "status": "success",
-      "host": "8.8.8.8",
-      "details": "..."
+      "github.com": {
+        "status": "success",
+        "host": "github.com",
+        "output": "..."
+      }
     },
-    ...
+    "http": {
+      "https://github.com": {
+        "status": "success",
+        "url": "https://github.com",
+        "status_code": 200,
+        "response_time_ms": 234.56,
+        "content_length": 45678
+      }
+    },
+    "ports": {
+      "github.com_22": {
+        "status": "success",
+        "host": "github.com",
+        "port": 22,
+        "message": "Port 22 is open"
+      }
+    },
+    "latency": {
+      "github.com": {
+        "status": "success",
+        "host": "github.com",
+        "avg_ms": 45.23,
+        "min_ms": 42.15,
+        "max_ms": 48.67,
+        "count": 4
+      }
+    }
   }
 }
 ```
 
-## 常见问题
+## 默认测试目标
 
-**Q: 脚本需要管理员权限吗？**  
-A: 某些操作系统的某些测试可能需要，但大多数测试不需要。如果遇到权限问题，请以管理员身份运行。
+### DNS 解析测试
+- github.com
+- google.com
+- cloudflare.com
 
-**Q: 可以测试内网IP吗？**  
-A: 可以。修改测试中的IP地址为内网地址即可。
+### Ping 测试
+- github.com
+- google.com
 
-**Q: 如何处理超时？**  
-A: 可以修改 `timeout` 参数，单位为秒。
+### HTTP 请求测试
+- https://github.com
+- https://www.google.com
+- https://www.cloudflare.com
+
+### 端口连通性测试
+- github.com:22 (SSH)
+- github.com:443 (HTTPS)
+- 8.8.8.8:53 (DNS)
+
+### 延迟测试
+- github.com
+- google.com
+
+## 自定义测试
+
+编辑 `network_test.py` 文件中的 `run_all_tests()` 方法来自定义测试目标和参数：
+
+```python
+def run_all_tests(self) -> Dict[str, Any]:
+    # 修改下面的列表
+    for hostname in ['your.domain.com', 'another.domain.com']:
+        self.test_dns_resolution(hostname)
+    # ...
+```
+
+## 故障排除
+
+### 权限问题
+如果遇到权限错误（特别是ping测试），可能需要以管理员身份运行脚本：
+
+**Linux/macOS:**
+```bash
+sudo python network_test.py
+```
+
+**Windows:**
+- 右键点击命令提示符或PowerShell，选择"以管理员身份运行"
+- 然后执行：`python network_test.py`
+
+### 超时问题
+如果测试超时，请检查：
+1. 网络连接是否正常
+2. 防火墙是否阻止了出站连接
+3. DNS是否正常工作
+4. 目标主机是否在线
+
+### 导入错误
+确保已正确安装依赖：
+```bash
+pip install --upgrade -r requirements.txt
+```
+
+### 跨平台兼容性
+脚本会自动检测操作系统并使用相应的系统命令。如果遇到特定平台的问题，请在Issue中报告。
+
+## API 说明
+
+### NetworkTester 类
+
+#### `__init__(timeout=5)`
+初始化测试器
+- `timeout`: 网络操作的超时时间（秒）
+
+#### `test_dns_resolution(hostname)`
+测试DNS解析
+- 返回：包含状态和IP地址的字典
+
+#### `test_ping(hostname)`
+测试Ping连通性
+- 返回：包含状态的字典
+
+#### `test_http_request(url)`
+测试HTTP请求
+- 返回：包含状态码和响应时间的字典
+
+#### `test_port_connectivity(host, port)`
+测试端口连通性
+- 返回：包含端口状态的字典
+
+#### `test_network_latency(host, count=4)`
+测试网络延迟
+- 返回：包含平均/最小/最大延迟的字典
+
+#### `run_all_tests()`
+运行所有测试
+- 返回：包含所有结果的字典
+
+#### `save_results(filename)`
+保存结果到JSON文件
+- `filename`: 输出文件名（默认为 network_test_results.json）
+
+#### `print_summary()`
+打印测试摘要
 
 ## 许可证
 
 MIT License
+
+## 作者
+
+Created by xuchaowind
 
 ## 贡献
 
